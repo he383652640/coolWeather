@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.example.churiy.coolweather.db.City;
 import com.example.churiy.coolweather.db.County;
 import com.example.churiy.coolweather.db.Province;
+import com.example.churiy.coolweather.urls.URLAddress;
 import com.example.churiy.coolweather.utils.HttpUtil;
 import com.example.churiy.coolweather.utils.Utility;
 
@@ -95,11 +96,25 @@ public class ChooseAreaFragment extends Fragment {
                 if (currentLevel == LEVEL_PROVINCE) {
                     selectedProvince = provinceList.get(i);
                     queryCities();
+                } else if (currentLevel == LEVEL_CITY) {
+                    selectedCity = cityList.get(i);
+                    queryCounties();
                 }
             }
-
-
         });
+
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (currentLevel == LEVEL_COUNTY) {
+                    queryCities();
+                } else if (currentLevel == LEVEL_CITY) {
+                    queryProvinces();
+                }
+            }
+        });
+
+        queryProvinces();
     }
 
     /**
@@ -125,23 +140,27 @@ public class ChooseAreaFragment extends Fragment {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-            String responseText =response.body().string();
-                boolean result =false;
-                if("province".equals(type)){
-                    result= Utility.handleProvinceResponse(responseText);
-                }else if("city".equals(type)){
-                    result=Utility.handleCityResponse(responseText,selectedProvince.getID());
-                }else if("county".equals(type)){
-                    result =Utility.handleCountyResponse(responseText,selectedCity.getID());
+                String responseText = response.body().string();
+                boolean result = false;
+                if ("province".equals(type)) {
+                    result = Utility.handleProvinceResponse(responseText);
+                } else if ("city".equals(type)) {
+                    result = Utility.handleCityResponse(responseText, selectedProvince.getID());
+                } else if ("county".equals(type)) {
+                    result = Utility.handleCountyResponse(responseText, selectedCity.getID());
                 }
 
-                if(result){
+                if (result) {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             closeProgressDialog();
-                            if("province".equals(type)){
+                            if ("province".equals(type)) {
                                 queryProvinces();
+                            } else if ("city".equals(type)) {
+                                queryCities();
+                            } else if ("county".equals(type)) {
+                                queryCounties();
                             }
                         }
                     });
@@ -151,22 +170,44 @@ public class ChooseAreaFragment extends Fragment {
     }
 
     /**
+     * 查询选中市的所有县，优先从数据库，如果没有再到服务器上查询
+     */
+    private void queryCounties() {
+        titleText.setText(selectedCity.getCityName());
+        backButton.setVisibility(View.VISIBLE);
+        countyList = DataSupport.where("cityid = ?", String.valueOf(selectedCity.getID())).find(County.class);
+        if (countyList.size() > 0) {
+            dataList.clear();
+            for (County county : countyList) {
+                dataList.add(county.getCountyName());
+            }
+            adapter.notifyDataSetChanged();
+            listView.setSelection(0);
+            currentLevel = LEVEL_COUNTY;
+        } else {
+            int provinceCode = selectedProvince.getProvinceCode();
+            int cityCode = selectedCity.getCityCode();
+            queryFromServer(URLAddress.URL_ADDRESS + provinceCode + "/" + cityCode, "county");
+        }
+    }
+
+    /**
      * 查询全国所有的省份，优先从数据库中查询，如果没有再到服务器上查询
      */
     private void queryProvinces() {
         titleText.setText("中国");
         backButton.setVisibility(View.GONE);
-        provinceList =DataSupport.findAll(Province.class);
-        if(provinceList.size()>0){
+        provinceList = DataSupport.findAll(Province.class);
+        if (provinceList.size() > 0) {
             dataList.clear();
-            for(Province province:provinceList){
+            for (Province province : provinceList) {
                 dataList.add(province.getProvinceName());
             }
             adapter.notifyDataSetChanged();
             listView.setSelection(0);
-            currentLevel=LEVEL_PROVINCE;
-        }else{
-            queryFromServer(URLAddress.URL_ADDRESS,"province");
+            currentLevel = LEVEL_PROVINCE;
+        } else {
+            queryFromServer(URLAddress.URL_ADDRESS, "province");
         }
 
     }

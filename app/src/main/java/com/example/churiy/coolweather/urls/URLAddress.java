@@ -1,4 +1,4 @@
-package com.example.churiy.coolweather;
+package com.example.churiy.coolweather.urls;
 
 /**
  * Created by Churiy on 2017/9/12.
