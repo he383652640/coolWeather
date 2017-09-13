@@ -5,8 +5,7 @@ import java.util.List;
 /**
  * Created by Churiy on 2017/9/12.
  */
-
-public class Suggestion {
+public class Suggestion{
 
     private List<HeWeather5Bean> HeWeather5;
 

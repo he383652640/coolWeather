@@ -187,7 +187,7 @@ public class ChooseAreaFragment extends Fragment {
         } else {
             int provinceCode = selectedProvince.getProvinceCode();
             int cityCode = selectedCity.getCityCode();
-            queryFromServer(URLAddress.URL_ADDRESS + provinceCode + "/" + cityCode, "county");
+            queryFromServer(URLAddress.URL_ADDRESS + '/'+provinceCode + "/" + cityCode, "county");
         }
     }
 
@@ -218,7 +218,7 @@ public class ChooseAreaFragment extends Fragment {
     private void queryCities() {
         titleText.setText(selectedProvince.getProvinceName());
         backButton.setVisibility(View.VISIBLE);
-        cityList = DataSupport.where("province = ?", String.valueOf(selectedProvince.getID())).find(City.class);
+        cityList = DataSupport.where("provinceid= ?", String.valueOf(selectedProvince.getID())).find(City.class);
         if (cityList.size() > 0) {
             dataList.clear();
             for (City city : cityList) {
@@ -229,7 +229,7 @@ public class ChooseAreaFragment extends Fragment {
             currentLevel = LEVEL_CITY;
         } else {
             int provinceCode = selectedProvince.getProvinceCode();
-            String address = URLAddress.URL_ADDRESS + provinceCode;
+            String address = URLAddress.URL_ADDRESS + '/'+provinceCode;
             queryFromServer(address, "city");
         }
     }
