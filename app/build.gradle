@@ -1,6 +1,6 @@
 apply plugin: 'com.android.application'
-configurations.all{
-    resolutionStrategy.force'com.android.support:support-annotations:23.1.0'
+configurations.all {
+    resolutionStrategy.force 'com.android.support:support-annotations:23.1.0'
 }
 android {
     compileSdkVersion 26
@@ -26,12 +26,12 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
+    compile files('libs/litepal-1.6.0-src.jar')
     compile 'com.android.support:appcompat-v7:26.+'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    testCompile 'junit:junit:4.12'
     compile 'com.google.code.gson:gson:2.2.4'
     compile 'com.github.bumptech.glide:glide:4.1.1'
     compile 'com.squareup.okhttp3:okhttp:3.9.0'
     compile 'org.carewebframework:org.carewebframework-root:6.0.2'
-    compile files('libs/litepal-1.6.0-src.jar')
+    testCompile 'junit:junit:4.12'
 }
